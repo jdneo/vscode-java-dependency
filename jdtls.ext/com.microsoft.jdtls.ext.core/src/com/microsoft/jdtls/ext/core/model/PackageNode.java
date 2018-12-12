@@ -95,4 +95,9 @@ public class PackageNode {
     public void setChildren(List<PackageNode> children) {
         this.children = children;
     }
+
+    @Override
+    public String toString() {
+        return this.name + "<" + this.kind + ">";
+    }
 }
