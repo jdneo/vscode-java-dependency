@@ -19,11 +19,15 @@ export class HierachicalPackageRootNode extends PackageRootNode {
     }
 
     public async revealPaths(paths: INodeData[]): Promise<DataNode> {
-        const hierachicalNodeData = paths[0];
-        const childs: ExplorerNode[] = await this.getChildren();
-        const childNode = <DataNode>childs.find((child: DataNode) =>
-            child instanceof HierachicalPackageNode && hierachicalNodeData.name.startsWith(child.nodeData.name));
-        return childNode === null ? null : childNode.revealPaths(paths);
+        // don't shift here, or child hierarchical node may lose data of package node
+        const hierarchicalNodeData = paths[0];
+        const children: ExplorerNode[] = await this.getChildren();
+        const childNode = <DataNode>children.find((child: DataNode) =>
+            hierarchicalNodeData.name.startsWith(child.nodeData.name + ".") || hierarchicalNodeData.name === child.nodeData.name);
+        if (childNode instanceof FolderNode || childNode instanceof FileNode) {
+            paths.shift();
+        }
+        return childNode ? (paths.length > 0 ? childNode.revealPaths(paths) : childNode) : null;
     }
 
     protected createChildNodeList(): ExplorerNode[] {
