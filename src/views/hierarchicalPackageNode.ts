@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 import { ProviderResult, TreeItem, TreeItemCollapsibleState } from "vscode";
-import { HierachicalPackageNodeData } from "../java/hierachicalPackageNodeData";
+import { HierarchicalPackageNodeData } from "../java/hierarchicalPackageNodeData";
 import { INodeData, NodeKind } from "../java/nodeData";
 import { Telemetry } from "../telemetry";
 import { DataNode } from "./dataNode";
@@ -12,7 +12,7 @@ import { PackageNode } from "./packageNode";
 import { ProjectNode } from "./projectNode";
 import { TypeRootNode } from "./typeRootNode";
 
-export class HierachicalPackageNode extends PackageNode {
+export class HierarchicalPackageNode extends PackageNode {
 
     constructor(nodeData: INodeData, parent: DataNode, protected _project: ProjectNode, protected _rootNode: DataNode) {
         super(nodeData, parent, _project, _rootNode);
@@ -33,7 +33,7 @@ export class HierachicalPackageNode extends PackageNode {
             if (!res) {
                 Telemetry.sendEvent("load data get undefined result", { node_kind: this.nodeData.kind.toString() });
             } else {
-                // Combine hierachical children and normal packagenode children
+                // Combine hierarchical children and normal package node children
                 res.forEach((node) => this.nodeData.children.push(node));
             }
             return this.createChildNodeList();
@@ -66,8 +66,8 @@ export class HierachicalPackageNode extends PackageNode {
             this.nodeData.children.forEach((nodeData) => {
                 if (nodeData.kind === NodeKind.File) {
                     result.push(new FileNode(nodeData, this));
-                } else if (nodeData instanceof HierachicalPackageNodeData) {
-                    result.push(new HierachicalPackageNode(nodeData, this, this._project, this._rootNode));
+                } else if (nodeData instanceof HierarchicalPackageNodeData) {
+                    result.push(new HierarchicalPackageNode(nodeData, this, this._project, this._rootNode));
                 } else {
                     result.push(new TypeRootNode(nodeData, this));
                 }
@@ -76,7 +76,7 @@ export class HierachicalPackageNode extends PackageNode {
         return result;
     }
 
-    private getHierarchicalNodeData(): HierachicalPackageNodeData {
-        return <HierachicalPackageNodeData>this.nodeData;
+    private getHierarchicalNodeData(): HierarchicalPackageNodeData {
+        return <HierarchicalPackageNodeData>this.nodeData;
     }
 }
