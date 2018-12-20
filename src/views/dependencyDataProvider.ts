@@ -82,8 +82,8 @@ export class DependencyDataProvider implements TreeDataProvider<ExplorerNode> {
             return rootElements;
         } else {
             let result = [];
-            for (const workspace of rootElements) {
-                const projects = await workspace.getChildren();
+            for (const rootWorkspace of rootElements) {
+                const projects = await rootWorkspace.getChildren();
                 result = result.concat(projects);
             }
             return result;
