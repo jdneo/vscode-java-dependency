@@ -136,6 +136,35 @@ public class PackageCommand {
             PackageNode item = new TypeRootNode(typeRoot.getElementName(), typeRoot.getPath().toPortableString(), NodeKind.TYPEROOT, TypeRootNode.K_SOURCE);
             item.setUri(JDTUtils.toUri(typeRoot));
             result.add(item);
+        } else if (ExtUtils.isJarResourceUri(uri)) {
+
+            IJarEntryResource resource = ExtUtils.createJarResource(uri);
+
+
+            IPackageFragmentRoot pkgRoot = resource.getPackageFragmentRoot();
+            result.add(ExtUtils.createNodeForProject(pkgRoot));
+            result.add(ExtUtils.createNodeForVirtualContainer(resource.getPackageFragmentRoot()));
+            result.add(ExtUtils.createNodeForPackageFragmentRoot(pkgRoot));
+            if (resource.getParent() instanceof IPackageFragment) {
+                IPackageFragment packageFragment = (IPackageFragment) resource.getParent();
+                result.add(ExtUtils.createNodeForPackageFragment(packageFragment));
+            } else {
+                int currentSize = result.size();
+                // visit back from file to the top folder
+                Object currentNode = resource.getParent();
+                while (currentNode instanceof JarEntryDirectory) {
+                    JarEntryDirectory jarEntryDirectory = (JarEntryDirectory) currentNode;
+                    PackageNode jarNode = getJarEntryResource(jarEntryDirectory);
+                    if (jarNode != null) {
+                        result.add(currentSize, jarNode);
+                    }
+                    currentNode = jarEntryDirectory.getParent();
+                }
+            }
+
+            PackageNode item = new PackageNode(resource.getName(), resource.getFullPath().toPortableString(), NodeKind.FILE);
+            item.setUri(ExtUtils.toUri(resource));
+            result.add(item);
         } else {
             // this is not a .java/.class file
             IResource resource = JDTUtils.findResource(uri, ResourcesPlugin.getWorkspace().getRoot()::findFilesForLocationURI);
@@ -440,7 +469,7 @@ public class PackageCommand {
             return new PackageNode(resource.getName(), resource.getFullPath().toPortableString(), NodeKind.FOLDER);
         } else if (resource instanceof JarEntryFile) {
             PackageNode entry = new PackageNode(resource.getName(), resource.getFullPath().toPortableString(), NodeKind.FILE);
-            entry.setUri(ExtUtils.toUri((JarEntryFile) resource));
+            entry.setUri(ExtUtils.toUri(resource));
             return entry;
         }
         return null;
