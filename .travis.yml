@@ -1,4 +1,6 @@
 language: java
+node_js:
+- '--lts'
 
 matrix:
   include:
